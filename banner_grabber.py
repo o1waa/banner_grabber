@@ -4,11 +4,9 @@ import argparse
 
 def grab_banner(target, port):
     try:
-        # Čistění URL od případných předpon
         target_clean = target.replace("https://", "").replace("http://", "").split('/')[0]
         target_ip = socket.gethostbyname(target_clean)
-
-        # Pro HTTPS (port 443) použijeme SSL wrapper
+        
         if port == 443:
             context = ssl.create_default_context()
             context.check_hostname = False
@@ -19,8 +17,7 @@ def grab_banner(target, port):
                     request = f"HEAD / HTTP/1.1\r\nHost: {target_clean}\r\nUser-Agent: BannerGrabber/1.0\r\nConnection: close\r\n\r\n"
                     ssock.sendall(request.encode())
                     return ssock.recv(2048).decode('utf-8', errors='ignore').strip()
-
-        # Pro HTTP (port 80 a ostatní)
+                    
         else:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(3.0)
@@ -41,7 +38,6 @@ def grab_banner(target, port):
     except Exception as e:
         return f"[-] Chyba: {e}"
 
-# Zpracování argumentů z CLI
 parser = argparse.ArgumentParser(description="Python Banner Grabber")
 parser.add_argument("-t", "--target", required=True, help="Cílová doména nebo IP")
 parser.add_argument("-p", "--port", type=int, required=True, help="Port (např. 80, 443, 22)")
